@@ -293,6 +293,23 @@ int qemu_egl_init_dpy_mesa(EGLNativeDisplayType dpy)
 #endif
 }
 
+static void qemu_egl_print_ctx(EGLContext ectx)
+{
+    const char *ctype;
+    EGLint type, ver;
+
+    eglQueryContext(qemu_egl_display, ectx, EGL_CONTEXT_CLIENT_TYPE, &type);
+    eglQueryContext(qemu_egl_display, ectx, EGL_CONTEXT_CLIENT_VERSION, &ver);
+
+    switch (type) {
+    case EGL_OPENGL_ES_API: ctype = "opengl es"; break;
+    case EGL_OPENGL_API:    ctype = "opengl";    break;
+    case EGL_OPENVG_API:    ctype = "openvg";    break;
+    default:                ctype = "????";      break;
+    }
+    fprintf(stderr, "egl-context: %s, v%d\n", ctype, ver);
+}
+
 EGLContext qemu_egl_init_ctx(void)
 {
     static const EGLint ctx_att_gl[] = {
@@ -315,5 +332,6 @@ EGLContext qemu_egl_init_ctx(void)
         return NULL;
     }
 
+    qemu_egl_print_ctx(ectx);
     return ectx;
 }
